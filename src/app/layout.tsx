@@ -7,6 +7,9 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'aqrxiv - arXiv QR Code Generator',
   description: 'Generate stylish QR codes for arXiv papers without using arXiv logos',
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({
