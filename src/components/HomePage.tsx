@@ -169,7 +169,7 @@ export default function HomePage() {
           <div className="mt-8 text-center">
             <QRPreview
               data={qrData}
-              size={Math.min(size, 400)}
+              size={Math.min(size, 320)}
               margin={margin}
               format={format}
               style={style}
