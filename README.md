@@ -1,6 +1,17 @@
-# aqrXiv
+<div align="center">
+  <img src="docs/img/aqrxiv.png" alt="aqrXiv Logo" width="120">
+  <h1>aqrxiv</h1>
+  <p>Generate stylish QR codes for arXiv papers</p>
+</div>
 
-Generate stylish QR codes for arXiv papers without using arXiv logos.
+## Features
+
+- Generate QR codes from arXiv ID or URL
+- PNG output format
+- Various styles (plain, preprint-red, mono)
+- Customizable center labels and captions
+- Shareable URLs with query parameters
+- Download functionality
 
 ## Development
 
@@ -9,14 +20,9 @@ npm install
 npm run dev
 ```
 
-## Features
+## License
 
-- Generate QR codes from arXiv ID or URL
-- Multiple output formats (PNG/SVG)
-- Various styles (plain, preprint-red, mono)
-- Customizable center labels and captions
-- Shareable URLs with query parameters
-- Download functionality
+Apache 2.0
 
 ## Legal
 
