@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   description: 'Generate stylish QR codes for arXiv papers without using arXiv logos',
   icons: {
     icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
   },
 }
 
