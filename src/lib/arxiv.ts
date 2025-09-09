@@ -94,10 +94,10 @@ export function parseShareUrl(searchParams: URLSearchParams): Partial<ShareParam
     id: searchParams.get('id') || undefined,
     mode: (searchParams.get('mode') as LinkMode) || 'abs',
     fmt: (searchParams.get('fmt') as 'png' | 'svg') || 'png',
-    size: parseInt(searchParams.get('size') || '512'),
+    size: parseInt(searchParams.get('size') || '1024'),
     margin: parseInt(searchParams.get('margin') || '4'),
     style: (searchParams.get('style') as 'plain' | 'arxiv') || 'arxiv',
-    centerLabel: (searchParams.get('center') as 'none' | 'preprint' | 'arxiv') || 'preprint',
+    centerLabel: (searchParams.get('center') as 'none' | 'preprint' | 'arxiv') || 'arxiv',
     caption: searchParams.get('caption') || ''
   }
 }

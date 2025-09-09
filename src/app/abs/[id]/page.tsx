@@ -8,12 +8,11 @@ interface PageProps {
   }>
 }
 
-export default async function DoiRedirect({ params }: PageProps) {
+export default async function AbsRedirect({ params }: PageProps) {
   const { id } = await params
   
   const searchParams = new URLSearchParams({
-    id,
-    mode: 'doi'
+    id
   })
   
   redirect(`/?${searchParams.toString()}`)

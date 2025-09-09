@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { generatePlainQR, generateStyledQR, createCenterLabel, createQRWithCaption, downloadQR } from '@/lib/qr'
+import QRCodeStyling from 'qr-code-styling'
 
 interface QRPreviewProps {
   data: string
@@ -24,90 +24,101 @@ export default function QRPreview({
   caption,
   onDownload
 }: QRPreviewProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const svgRef = useRef<HTMLDivElement>(null)
-  const [qrCode, setQrCode] = useState<any>(null)
+  const canvasRef = useRef<HTMLDivElement>(null)
+  const [qrCode, setQrCode] = useState<QRCodeStyling | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     generateQR()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, size, margin, format, style, centerLabel, caption])
 
   const generateQR = async () => {
     try {
+      console.log('generateQR called with:', { data, size, margin, format, style, centerLabel, caption })
       setIsLoading(true)
       setError(null)
 
       // Clear previous QR codes
-      if (svgRef.current) {
-        svgRef.current.innerHTML = ''
+      if (canvasRef.current) {
+        canvasRef.current.innerHTML = ''
       }
 
-      // Use styled QR for all non-plain styles or SVG format
-      if (style !== 'plain' || format === 'svg') {
-        const styledQR = generateStyledQR({
-          data,
-          size,
-          margin,
-          fmt: format,
-          style,
-          centerLabel
-        })
-
-        if (centerLabel !== 'none') {
-          const centerLabelImage = createCenterLabel(centerLabel, size)
-          styledQR.update({
-            image: centerLabelImage
-          })
+      // Create QR code instance
+      const qrCodeInstance = new QRCodeStyling({
+        width: size,
+        height: size,
+        data: data,
+        margin: margin,
+        qrOptions: {
+          errorCorrectionLevel: 'Q'
+        },
+        dotsOptions: {
+          color: style === 'arxiv' ? '#b31b1b' : '#000000',
+          type: 'dots'
+        },
+        cornersSquareOptions: {
+          color: style === 'arxiv' ? '#b31b1b' : '#000000',
+          type: 'extra-rounded'
+        },
+        cornersDotOptions: {
+          color: style === 'arxiv' ? '#b31b1b' : '#000000',
+          type: 'dot'
+        },
+        backgroundOptions: {
+          color: '#ffffff'
         }
+      })
 
-        // For now, just use the original QR without caption
-        if (svgRef.current) {
-          await styledQR.append(svgRef.current)
-        }
-        setQrCode(styledQR)
-      } else {
-        // Use plain QR only for plain style with PNG format
-        const qrString = await generatePlainQR({
-          data,
-          size,
-          margin,
-          fmt: format,
-          style,
-          centerLabel,
-          caption
-        })
-
-        const img = new Image()
-        img.onload = () => {
-          if (canvasRef.current) {
-            const canvas = canvasRef.current
-            const ctx = canvas.getContext('2d')
-            if (ctx) {
-              canvas.width = size
-              canvas.height = size
-              ctx.drawImage(img, 0, 0, size, size)
-              
-              if (centerLabel !== 'none') {
-                const labelImg = new Image()
-                const centerLabelImage = createCenterLabel(centerLabel, size)
-                labelImg.onload = () => {
-                  const labelSize = size * 0.25
-                  const x = (size - labelSize) / 2
-                  const y = (size - labelSize) / 2
-                  ctx.drawImage(labelImg, x, y, labelSize, labelSize)
-                }
-                labelImg.src = centerLabelImage
-              }
-            }
-          }
-        }
-        img.src = qrString
+      // Add center label if needed
+      if (centerLabel !== 'none') {
+        // Extract ID from URL for the label
+        const parsed = new URL(data)
+        const pathParts = parsed.pathname.split('/')
+        const id = pathParts[pathParts.length - 1].replace('.pdf', '')
         
-        setQrCode(qrString)
+        const labelSize = size * 0.5
+        const fontSize = Math.max(12, labelSize * 0.2)
+        
+        const labelSvg = `
+          <svg width="${labelSize}" height="${labelSize}" xmlns="http://www.w3.org/2000/svg">
+            <rect width="100%" height="100%" fill="white" rx="${labelSize * 0.15}" stroke="#e5e7eb" stroke-width="1"/>
+            <text x="50%" y="40%" dominant-baseline="middle" text-anchor="middle" 
+                  font-family="system-ui, -apple-system, sans-serif" 
+                  font-size="${fontSize}" 
+                  font-weight="500" 
+                  fill="#b31b1b">
+              arXiv:
+            </text>
+            <text x="50%" y="65%" dominant-baseline="middle" text-anchor="middle" 
+                  font-family="system-ui, -apple-system, sans-serif" 
+                  font-size="${fontSize * 0.8}" 
+                  font-weight="400" 
+                  fill="#b31b1b">
+              ${id}
+            </text>
+          </svg>
+        `
+        
+        const labelDataUrl = `data:image/svg+xml;base64,${btoa(labelSvg)}`
+        qrCodeInstance.update({
+          image: labelDataUrl,
+          imageOptions: {
+            hideBackgroundDots: true,
+            imageSize: 0.5,
+            margin: 2,
+            crossOrigin: 'anonymous'
+          }
+        })
       }
+
+      // Append QR code directly to canvas ref
+      if (canvasRef.current) {
+        await qrCodeInstance.append(canvasRef.current)
+      }
+      
+      setQrCode(qrCodeInstance)
+      console.log('QR code generated successfully')
     } catch (err) {
       console.error('Error generating QR code:', err)
       setError('Failed to generate QR code')
@@ -125,20 +136,15 @@ export default function QRPreview({
     const mode = parsed.pathname.includes('/pdf/') ? 'pdf' : 
                 parsed.pathname.includes('/abs/') ? 'abs' : 'doi'
     
-    const filename = `arxiv-qr-${id}-${mode}.${format}`
+    const filename = `arxiv-qr-${id}-${mode}`
     
     try {
-      if (typeof qrCode === 'string') {
-        // If qrCode is a string (data URL), handle it directly
-        const link = document.createElement('a')
-        link.download = filename
-        link.href = qrCode
-        link.click()
+      if (format === 'svg') {
+        qrCode.download({ name: filename, extension: 'svg' })
       } else {
-        // If qrCode is a QRCodeStyling instance, use the original download method
-        await downloadQR(qrCode, filename, format)
+        qrCode.download({ name: filename, extension: 'png' })
       }
-      onDownload?.(filename)
+      onDownload?.(`${filename}.${format}`)
     } catch (err) {
       console.error('Download failed:', err)
     }
@@ -170,19 +176,7 @@ export default function QRPreview({
   return (
     <div className="text-center">
       <div className="inline-block p-4 bg-gray-50 rounded-lg mb-4">
-        <div 
-          ref={svgRef}
-          className="flex items-center justify-center"
-          style={{ 
-            minWidth: size, 
-            minHeight: caption ? size + 40 : size 
-          }}
-        />
-        <canvas
-          ref={canvasRef}
-          className={`max-w-full h-auto ${style !== 'plain' || format === 'svg' ? 'hidden' : ''}`}
-          style={{ width: size, height: size }}
-        />
+        <div ref={canvasRef} />
       </div>
 
       <button
