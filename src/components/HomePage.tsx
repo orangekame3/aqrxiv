@@ -123,7 +123,9 @@ export default function HomePage() {
 
       <div className="w-full max-w-md px-6">
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-light text-preprint-red mb-2">aqrxiv</h1>
+          <a href="https://aqrxiv.org/" className="inline-block">
+            <h1 className="text-5xl font-light text-preprint-red mb-2 hover:text-red-700 transition-colors duration-200">aqrxiv</h1>
+          </a>
         </div>
 
         <div className="space-y-4">
