@@ -49,5 +49,5 @@ Please make sure to update tests as appropriate and follow the existing code sty
 Like this project? You can support its development by buying me a coffee!
 
 <a href="https://coff.ee/miyaorg030m">
-  <img src="./img/bmc-button.png" alt="Buy me a coffee" width="150">
+  <img src="docs/img/bmc-button.png" alt="Buy me a coffee" width="150">
 </a>
