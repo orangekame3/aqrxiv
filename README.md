@@ -1,4 +1,4 @@
-# aqrxiv
+# aqrXiv
 
 Generate stylish QR codes for arXiv papers without using arXiv logos.
 
