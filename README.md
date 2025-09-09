@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/img/aqrxiv.png" alt="aqrXiv Logo" width="120">
+  <img src="docs/img/aqrxiv.png" alt="aqrXiv Logo" width="240">
   <h1>aqrxiv</h1>
   <p>Generate stylish QR codes for arXiv papers</p>
 </div>
